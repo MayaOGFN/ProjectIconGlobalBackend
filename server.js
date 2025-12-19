@@ -3,20 +3,38 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to serve static files
 app.use(express.static('public'));
 app.use(express.json());
 
-// Routes
+// State variables (Reset when Render sleeps on Free Tier)
+let backendActive = false;
+let gameServerActive = false;
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Mock API Endpoints for your OGFN Devs
-app.post('/api/register', (req, res) => {
-    res.json({ status: "success", message: "Account created (Mock)" });
+// API for Dev Login
+app.post('/api/dev-login', (req, res) => {
+    const { token } = req.body;
+    if (token === 'testerdev') {
+        res.json({ success: true, message: "Welcome Dev" });
+    } else {
+        res.status(401).json({ success: false, message: "Invalid Dev Token" });
+    }
 });
 
-app.listen(PORT, () => {
-    console.log(`OGFN Backend running on port ${PORT}`);
+// API to Toggle Servers
+app.post('/api/toggle-server', (req, res) => {
+    const { type } = req.body; // 'backend' or 'gs'
+    if (type === 'backend') backendActive = !backendActive;
+    if (type === 'gs') gameServerActive = !gameServerActive;
+    
+    res.json({ 
+        backend: backendActive, 
+        gs: gameServerActive, 
+        msg: gameServerActive ? "cobalt.dll injected into FN" : "Servers stopped" 
+    });
 });
+
+app.listen(PORT, () => console.log(`OGFN running on ${PORT}`));
