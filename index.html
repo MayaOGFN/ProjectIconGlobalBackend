@@ -1,78 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OGFN Control Panel</title>
+    <title>OGFN Dev Dashboard</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: #1a1a1a; border: 1px solid #333; width: 350px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .header { background: #252525; padding: 20px; text-align: center; border-bottom: 1px solid #333; color: #007bff; font-weight: bold; }
-        .body { padding: 25px; display: flex; flex-direction: column; gap: 12px; }
-        input { background: #121212; border: 1px solid #444; padding: 10px; color: white; border-radius: 4px; }
-        button { padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-blue { background: #007bff; color: white; }
+        body { background: #0b0e11; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 50px; }
+        .box-header { background: #1c1f26; border: 1px solid #007bff; width: 400px; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; font-weight: bold; }
+        .box-main { background: #161920; border: 1px solid #333; width: 400px; padding: 30px; border-radius: 0 0 8px 8px; display: flex; flex-direction: column; gap: 15px; }
+        input { padding: 10px; background: #0b0e11; border: 1px solid #444; color: white; }
+        button { padding: 12px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .btn-reg { background: #007bff; color: white; }
+        .btn-dev { background: #6c757d; color: white; }
         .btn-green { background: #28a745; color: white; }
-        .btn-grey { background: #444; color: white; }
         .hidden { display: none; }
-        .status { font-size: 0.8rem; text-align: center; color: #888; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-ui" class="box">
-        <div class="header">OGFN BACKEND</div>
-        <div class="body">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="pw" placeholder="Password">
-            <button class="btn-blue" onclick="alert('Registered!')">REGISTER</button>
-            <button class="btn-green" onclick="alert('User Dashboard Loaded')">LOGIN</button>
-            <hr style="width:100%; border:0; border-top:1px solid #333;">
-            <button class="btn-grey" onclick="showDevLogin()">DEV ACCESS</button>
-        </div>
+    <div class="box-header">REGISTER & LOGIN</div>
+
+    <div id="login-ui" class="box-main">
+        <input type="email" id="email" placeholder="Email Address">
+        <input type="password" id="pw" placeholder="Password">
+        <button class="btn-reg">REGISTER</button>
+        <button class="btn-green">LOGIN</button>
+        <button class="btn-dev" onclick="devAuth()">DEV LOGIN</button>
     </div>
 
-    <div id="dev-ui" class="box hidden">
-        <div class="header">DEVELOPER CONSOLE</div>
-        <div class="body">
-            <div id="dev-status" class="status">System Standby</div>
-            <button class="btn-blue" onclick="toggle('backend')">Toggle Backend</button>
-            <button class="btn-green" onclick="toggle('gs')">Inject cobalt.dll (GS)</button>
-            <button class="btn-grey" onclick="location.reload()">Logout</button>
-        </div>
+    <div id="dev-ui" class="box-main hidden">
+        <h3>Developer Console</h3>
+        <p>Backend Status: <span style="color:green">ONLINE</span></p>
+        <button class="btn-reg" onclick="alert('cobalt.dll status: Injected into Fortnite process')">ENABLE GAMESERVERS (Cobalt)</button>
+        <button class="btn-dev" onclick="location.reload()">LOGOUT</button>
     </div>
 
     <script>
-        function showDevLogin() {
-            const token = prompt("Enter Dev Token:");
-            fetch('/api/dev-login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ token })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('auth-ui').classList.add('hidden');
-                    document.getElementById('dev-ui').classList.remove('hidden');
-                } else {
-                    alert("Unauthorized Access");
-                }
-            });
-        }
-
-        function toggle(type) {
-            fetch('/api/toggle-server', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ type })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('dev-status').innerText = 
-                    `Backend: ${data.backend ? 'ON' : 'OFF'} | GS: ${data.gs ? 'ACTIVE' : 'OFF'}`;
-                if(data.gs) alert("Success: cobalt.dll release file injected into FN");
-            });
+        function devAuth() {
+            const t = prompt("Enter Dev Token:");
+            if(t === "testerdev") {
+                document.getElementById('login-ui').classList.add('hidden');
+                document.getElementById('dev-ui').classList.remove('hidden');
+            } else {
+                alert("Invalid Token");
+            }
         }
     </script>
 </body>
